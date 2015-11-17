@@ -52,9 +52,7 @@
         var canvasText = document.getElementById('canvasText');
         var canvas = document.getElementById('myCanvas');
         var context = canvas.getContext('2d');
-        //context.font = '30pt Calibri';
         context.fillStyle = 'black';
-        //context.font = '10px serif';
         // get height by multiplying lines by font size
         var textArray = canvasText.value.split('\n');
         canvas.height = textArray.length * 10;
@@ -69,7 +67,7 @@
           var charWidth = 0;
           textLineArray.map(function(textLineChar, charIndex){
             var metrics = context.measureText(textLineArray[charIndex]);
-            charWidth += Math.round(metrics.width);
+            charWidth += 6;
           });
           // get width
           canvasWidth = charWidth > canvasWidth ? charWidth : canvasWidth;
@@ -81,7 +79,7 @@
           textLineArray.map(function(textLineChar, charIndex){
             if(charIndex > 0){
               var metrics = context.measureText(textLineArray[charIndex - 1]);
-              charLeft += Math.round(metrics.width);
+              charLeft += 6;
             }
 
             context.fillText(textLineChar, charLeft, 10 + (index * 10));
