@@ -1,43 +1,102 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>TXT2IMG</title>
+
+    <!-- Bootstrap -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
     <style>
-      body {
-        margin: 0px;
-        padding: 0px;
+      img{
+        margin-top: 10px;
+      }
+      canvas{
+        display: none;
+      }
+      textarea{
+        max-width: 900px;
       }
     </style>
   </head>
   <body>
-    <canvas id="myCanvas" width="578" height="200" style="display:none;"></canvas>
-    <img id="canvasImg" alt="Right click to save me!">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+          <div class="page-header">
+            <h1>TXT2IMG <small>converts text to an image</small></h1>
+          </div>
+          <form id="canvasForm">
+            <div class="form-group">
+              <textarea id="canvasText" class="form-control" placeholder="text..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-default btn-block">TXT2IMG</button>
+          </form>
+          <img id="canvasImg" class="img-responsive center-block" alt="Right click to save me!" style="display:none;">
+          <canvas id="myCanvas" width="578" height="200"></canvas>
+        </div>
+      </div>
+    </div>
     <script>
-      var canvas = document.getElementById('myCanvas');
-      var context = canvas.getContext('2d');
+      function textToImage(event) {
+        event.preventDefault();
+        var canvasText = document.getElementById('canvasText');
+        var canvas = document.getElementById('myCanvas');
+        var context = canvas.getContext('2d');
+        //context.font = '30pt Calibri';
+        context.fillStyle = 'black';
+        //context.font = '10px serif';
+        // get height by multiplying lines by font size
+        var textArray = canvasText.value.split('\n');
+        canvas.height = textArray.length * 10;
+        // get width
+        var canvasWidth = 0;
+        var newTextArray = [];
+        textArray.map(function(textLine, index){
+          newTextArray.push(textLine.split(''));
+        });
 
-      // draw cloud
-      context.beginPath();
-      context.moveTo(170, 80);
-      context.bezierCurveTo(130, 100, 130, 150, 230, 150);
-      context.bezierCurveTo(250, 180, 320, 180, 340, 150);
-      context.bezierCurveTo(420, 150, 420, 120, 390, 100);
-      context.bezierCurveTo(430, 40, 370, 30, 340, 50);
-      context.bezierCurveTo(320, 5, 250, 20, 250, 50);
-      context.bezierCurveTo(200, 5, 150, 20, 170, 80);
-      context.closePath();
-      context.lineWidth = 5;
-      context.fillStyle = '#8ED6FF';
-      context.fill();
-      context.strokeStyle = '#0000ff';
-      context.stroke();
+        newTextArray.map(function(textLineArray, index){
+          var charWidth = 0;
+          textLineArray.map(function(textLineChar, charIndex){
+            var metrics = context.measureText(textLineArray[charIndex]);
+            charWidth += Math.round(metrics.width);
+          });
+          // get width
+          canvasWidth = charWidth > canvasWidth ? charWidth : canvasWidth;
+        });
+        canvas.width = canvasWidth;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        newTextArray.map(function(textLineArray, index){
+          var charLeft = 0;
+          textLineArray.map(function(textLineChar, charIndex){
+            if(charIndex > 0){
+              var metrics = context.measureText(textLineArray[charIndex - 1]);
+              charLeft += Math.round(metrics.width);
+            }
 
-      // save canvas image as data url (png format by default)
-      var dataURL = canvas.toDataURL();
+            context.fillText(textLineChar, charLeft, 10 + (index * 10));
+          });
+        });
 
-      // set canvasImg image src to dataURL
-      // so it can be saved as an image
-      document.getElementById('canvasImg').src = dataURL;
+        // save canvas image as data url (png format by default)
+        var dataURL = canvas.toDataURL();
 
+        // set canvasImg image src to dataURL
+        // so it can be saved as an image
+        document.getElementById('canvasImg').src = dataURL;
+        document.getElementById('canvasImg').removeAttribute('style');
+      };
+      window.onsubmit = textToImage;
     </script>
   </body>
-</html>      
+</html>
