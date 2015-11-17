@@ -55,7 +55,7 @@
         context.fillStyle = 'black';
         // get height by multiplying lines by font size
         var textArray = canvasText.value.split('\n');
-        canvas.height = textArray.length * 10;
+        canvas.height = (textArray.length + 1) * 10;
         // get width
         var canvasWidth = 0;
         var newTextArray = [];
